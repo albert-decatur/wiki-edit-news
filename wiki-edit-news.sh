@@ -48,7 +48,7 @@ if [[ -z $( grep -F "$url" $log ) ]]; then
 	)
 	# for each unique uri, get the most recent description and tweet it
 	echo "$uniq_uris" |\
-	parallel '
+	parallel --gnu '
 		record=$( grep -F {} '$tmptsv' | tail -n -1 )
 		desc=$( 
 			# convert dbpedia hex unicode code points to utf8 characters
