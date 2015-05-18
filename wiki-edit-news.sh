@@ -3,7 +3,6 @@
 # NB: assumes authentication through twurl's ~/.twurlrc
 # NB: works in current directory
 # prereqs: twurl, raptor-utils, lftp, mawk, GNU parallel, perl MURI::Escape
-# TODO: take only latest update on a subject from the ttl events file
 # user args: 1) sleep time in seconds to avoid twitter API abuse
 # examples: $0 15
 
