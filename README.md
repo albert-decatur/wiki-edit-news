@@ -18,12 +18,12 @@ Updates when DBpedia events are updated.
 
 ### prerequisites
 
-* twurl
+* [twurl]((https://github.com/twitter/twurl))
 * raptor-utils
 * lftp
 * mawk
 * GNU parallel
-* MURI::Escape
+* perl's URI::Escape
 
 ### installation
 
@@ -32,7 +32,7 @@ These instructions assume a debian based linux distribution.
 ```bash
 # install utils to convert dbpedia turtle files (ttl) to ntriples (raptor-utils), use find on HTTP (lftp), and awk faster! (mawk)
 sudo apt-get install raptor-utils lftp mawk
-# install [twurl](https://github.com/twitter/twurl) to easily use twitter API
+# install twurl to easily use twitter API
 sudo apt-get install rubygems1.9.1
 sudo gem i twurl --source http://rubygems.org
 # at this step, manually configure twurl with your twitter consumer key / consumer secret
