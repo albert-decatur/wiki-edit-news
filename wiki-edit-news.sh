@@ -1,20 +1,30 @@
 #!/bin/bash
 # posts events.dbpedia.org wikipedia edit descriptions to twitter
 # NB: assumes authentication through twurl's ~/.twurlrc
-# NB: works in current directory
+# NB: writes log file to same directory as the script
+# NB: ignores "HEADHUNTED" events - there are many of these and appear to be all sports
 # prereqs: twurl, raptor-utils, lftp, mawk, GNU parallel, perl MURI::Escape
 # TODO: take only latest update on a subject from the ttl events file
 # user args: 1) sleep time in seconds to avoid twitter API abuse
 # examples: $0 15
+# or, give it a URL to post, or even a dbpedia events ttl file
+# examples: $0 15 http://events.dbpedia.org/dataset/2015/05/13.ttl
 
 # time to wait between posts - NB: however, parallel is multicore, so perhaps -j 1 should be used
 sleeptime=$1
 # define a log file - check this file to see if the latest ttl has already been posted to twitter
-log=events_dbpedia_urls.log
-# defines base dbpedia events url - lftp find command will not include this
-baseurl="http://events.dbpedia.org/dataset/"
-# get latest ttl (turtle) file from events.dbpedia.org
-url=$baseurl$( lftp -e 'find; exit' $baseurl | tail -n 1 )
+log=$(dirname $0)/events_dbpedia_urls.log
+# check if third argument exists
+# if it does, assume it is a URL to get event ttl from directly
+ttl=$2
+if [[ -n $ttl ]]; then
+	url=$ttl
+else
+	# defines base dbpedia events url - lftp find command will not include this
+	baseurl="http://events.dbpedia.org/dataset/"
+	# get latest ttl (turtle) file from events.dbpedia.org
+	url=$baseurl$( lftp -e 'find; exit' $baseurl | tail -n 1 )
+fi
 # define url_decode function
 function url_decode { perl -MURI::Escape -e 'print uri_unescape(<STDIN>); print "\n";';}
 # if the URL does not already appear in the log file, then post its events
@@ -31,6 +41,8 @@ if [[ -z $( grep -F "$url" $log ) ]]; then
 		mawk '{split($0,a,"\"");print $1,a[2]}' |\
 		# remove mentions that have a dbpedia url - look junky and redundant
 		grep -vF 'http://dbpedia.org/resource/' |\
+		# ignore HEADHUNTED events as they are normally sports
+		grep -vF 'HEADHUNTED' |\
 		# decode url encoded text
 		url_decode |\
 		# ignore blank lines
