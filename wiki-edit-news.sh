@@ -4,7 +4,6 @@
 # NB: writes log file to same directory as the script
 # NB: ignores "HEADHUNTED" events - there are many of these and appear to be all sports
 # prereqs: twurl, raptor-utils, lftp, mawk, GNU parallel, perl MURI::Escape
-# TODO: take only latest update on a subject from the ttl events file
 # user args: 1) sleep time in seconds to avoid twitter API abuse
 # examples: $0 15
 # or, give it a URL to post, or even a dbpedia events ttl file
