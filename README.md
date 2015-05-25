@@ -74,3 +74,4 @@ All it holds is the URLs of dbpedia events scraped previously.
 
 * when invoking without a URL, post for all tll files after the latest in the log txt
 * only post descriptions with links - helps catch broken posts
+* remove posts that would reference a hidden article like so: "Hidden@41149277 awarded with the Padma Shri Award. "
