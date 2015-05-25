@@ -69,3 +69,8 @@ chmod +x wiki-edit-news.sh
 Note that the log file *events_dbpedia_urls.log* will be keeping track of which dbpedia events have already been posted.
 A primitive system!
 All it holds is the URLs of dbpedia events scraped previously.
+
+### TODO
+
+* when invoking without a URL, post for all tll files after the latest in the log txt
+* only post descriptions with links - helps catch broken posts
