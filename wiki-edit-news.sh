@@ -80,11 +80,14 @@ if [[ -z $( grep -F "$url" $log ) ]]; then
 			# prepend wikipedia base url
 			sed "s:^:http\:\/\/en.wikipedia.org\/wiki\/:g" 
 		)
-		# post to twitter
-		twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
-		# sleep for user specified number of seconds
-		# this could also be accomplished through GNU parallels sem or -j
-		sleep '$sleeptime'
+		# check if wikilink is available - if not, ignore event
+		if [[ -n $( echo $wikilink | grep -vE "^\s*$" ) ]]; then
+			# post to twitter
+			twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
+			# sleep for user specified number of seconds
+			# this could also be accomplished through GNU parallels sem or -j
+			sleep '$sleeptime'
+		fi
 	'
 	# append the current url to the log file so those events will not be reposted in future runs
 	echo "$url" >> $log
