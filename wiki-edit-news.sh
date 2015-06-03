@@ -26,6 +26,10 @@ else
 fi
 # define url_decode function
 function url_decode { perl -MURI::Escape -e 'print uri_unescape(<STDIN>); print "\n";';}
+# define function url_encode - to handle reserved characters to POST to twitter
+function url_encode { perl -MURI::Escape -e 'print uri_escape(<STDIN>); print "\n";';}
+# export for GNU parallel
+export -f url_encode
 # if the URL does not already appear in the log file, then post its events
 if [[ -z $( grep -F "$url" $log ) ]]; then 
 	# make a two col tsv: 1) ttl event uri, 3) ttl event description
@@ -76,19 +80,23 @@ if [[ -z $( grep -F "$url" $log ) ]]; then
 			# remove dbpedia event tags, eg JUSTMARRIED
 			# TODO: do not rely on last word in URL not being all capitals after a hyphen, which could actually happen
 			# one solution is a full list of dbpedia event tags, another is to really use the input ttl instead of converting to nt
-			sed "s:-[A-Z]\+>$::g" |\
-			# prepend wikipedia base url
-			sed "s:^:http\:\/\/en.wikipedia.org\/wiki\/:g" 
+			sed "s:-[A-Z]\+>$::g"
 		)
-		# check if wikilink is available - if not, ignore event
-		if [[ -n $( echo $wikilink | grep -vE "^\s*$" ) ]]; then
-			# post to twitter
-			twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
-			# sleep for user specified number of seconds
-			# this could also be accomplished through GNU parallels sem or -j
-			sleep '$sleeptime'
-		fi
+		# url_encode, prepend wikipedia base url
+		# NB: ampersands, and possibly other reserved characters, appear percent escaped on twitter!
+		# note use of printf rather than echo to prevent trailing newline
+		wikilink=$(
+			printf "$wikilink" |\
+			url_encode |\
+			sed "s:^:http\:\/\/en.wikipedia.org\/wiki\/:g"
+		)
+		# post to twitter
+		twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
+		# sleep for user specified number of seconds
+		# this could also be accomplished through GNU parallels sem or -j
+		sleep '$sleeptime'
 	'
 	# append the current url to the log file so those events will not be reposted in future runs
+	# TODO: only if posted successfully
 	echo "$url" >> $log
 fi
