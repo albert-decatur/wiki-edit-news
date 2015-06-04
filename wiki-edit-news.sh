@@ -90,11 +90,13 @@ if [[ -z $( grep -F "$url" $log ) ]]; then
 			url_encode |\
 			sed "s:^:http\:\/\/en.wikipedia.org\/wiki\/:g"
 		)
-		# post to twitter
-		twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
-		# sleep for user specified number of seconds
-		# this could also be accomplished through GNU parallels sem or -j
-		sleep '$sleeptime'
+		# if both description and wikipedia link are non-null, post to twitter
+		if [[ $( echo "$desc" | grep -vE "^\s*$" | wc -l ) -eq 1 && $( echo "$wikilink" | grep -vE "^\s*$" | wc -l ) -eq 1 ]]; then
+			twurl -d "status=$desc $wikilink." /1.1/statuses/update.json
+			# sleep for user specified number of seconds
+			# this could also be accomplished through GNU parallels sem or -j
+			sleep '$sleeptime'
+		fi
 	'
 	# append the current url to the log file so those events will not be reposted in future runs
 	# TODO: only if posted successfully
